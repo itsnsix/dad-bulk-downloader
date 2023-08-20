@@ -35,8 +35,14 @@ def init(uid):
         os.mkdir(username)
     os.chdir(username)
 
-    page_count = int(soup.find(class_="next_page")
+    page_count = 1
+
+    try:
+        page_count = int(soup.find(class_="next_page")
                      .previous_sibling.previous_sibling.text)
+    except AttributeError:
+        # user only has 1 page of submissions
+        pass
 
     return [username, page_count]
 
