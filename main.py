@@ -12,7 +12,6 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-
 # Warning: Do not set this too high. You might crash your computer or DDoS dad.
 # not responsible if banana bans you.
 MAX_THREADS = 8
@@ -39,7 +38,7 @@ def init(uid):
 
     try:
         page_count = int(soup.find(class_="next_page")
-                     .previous_sibling.previous_sibling.text)
+                         .previous_sibling.previous_sibling.text)
     except AttributeError:
         # user only has 1 page of submissions
         pass
@@ -73,10 +72,14 @@ def download(uid, page):
         submitted_at = datetime.strptime(raw_date, "%H:%M, %b %d, %Y")
         date_string = submitted_at.strftime('%Y-%m-%dT%H:%M')
         original_filename = img.split('/')[-1]
+        filename = date_string + '_' + original_filename
+
+        if os.path.isfile(filename):
+            continue
 
         r = requests.get(img, stream=True)
         if r.status_code == 200:
-            with open(date_string + '_' + original_filename, 'wb') as f:
+            with open(filename, 'wb') as f:
                 r.raw.decode_content = True
                 shutil.copyfileobj(r.raw, f)
 
@@ -90,7 +93,7 @@ def main(uid):
             worker = threading.Thread(target=download, args=(uid, page))
             worker.start()
             while threading.active_count() >= MAX_THREADS:
-                time.sleep(10)
+                time.sleep(1)
 
 
 # Press the green button in the gutter to run the script.
